@@ -1,17 +1,14 @@
-/*
- * interfaccia.h
- *
- *  Created on: 17 dic 2016
- *      Author: Michele97
- */
-
 #ifndef INTERFACCIA_H_
 #define INTERFACCIA_H_
 
 #include <windows.h>
+#include <unistd.h>
+#include <string.h>
 #include "globali.h"
 #include "lettura_scrittura.h"
 #include "operazioni.h"
+
+#define DIM_PERCORSO 300
 
 void Pagina_principale();
 void gotoxy(int x, int y);
@@ -24,6 +21,8 @@ void Cancellare_errore(int x, int y);
 void Stampare_esito(dati_gioco info_partita, int esito_parole_uguali, int tentativo_ultimo);
 
 void Stampare_livelli_difficolta();
+
+void Aiuto(int *numero_tentativi, int *doppioni, int *lunghezza);
 
 #define N_COLONNE_DISPLAY 80
 

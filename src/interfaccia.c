@@ -1,15 +1,12 @@
 #include "interfaccia.h"
 
-void Pagina_principale()
+void Pagina_principale(int *numero_tentativi, int *lunghezza, int *doppioni)
 {
 	char scelta[DIM_MAX];
 	int voce_menu;
 	int esito_scelta = 0;
-	int numero_tentativi = 4;
-	int lunghezza = 4;
-	int doppioni = 1;
 	int x, y;
-
+	system("cls");
 	do {
 	    system("cls");
 		Stampare_titolo();
@@ -21,6 +18,13 @@ void Pagina_principale()
 	    	gotoxy(x, y);
 	    	printf("\e[31m \e[1mErrore nella digitazione!\e[37m \e[0m");
 	    }
+
+	    x = 0;
+	    y = 24;
+	    gotoxy(x, y);
+	    printf("\e[8m");
+	    printf("\e[47m \e[30m Premere \e[4mCTRL^Q\e[0m\e[47m\e[30m e di seguito INVIO per chiudere il gioco.                      \e[0m");
+
 	    x = 0;
 	    y = 10;
 	    gotoxy(x, y);
@@ -38,7 +42,7 @@ void Pagina_principale()
 	    {
 	        esito_scelta = 1;
 	    }
-	}while((voce_menu < 49) || (voce_menu > 52));
+	}while(((voce_menu < 49) || (voce_menu > 52)) && (voce_menu != 17));
 
 	voce_menu = voce_menu - 48;
 	if(voce_menu == 1)
@@ -55,11 +59,14 @@ void Pagina_principale()
 		{
 			if(voce_menu == 3)
 			{
-				Impostazioni(&lunghezza, &numero_tentativi, &doppioni);
+				Impostazioni(lunghezza, numero_tentativi, doppioni);
 			}
 			else
 			{
-				//Aiuto();
+				if(voce_menu == 4)
+				{
+					Aiuto(numero_tentativi, doppioni, lunghezza);
+				}
 			}
 		}
 	}
@@ -111,11 +118,11 @@ void Stampare_risultati_precedenti(dati_gioco info_partita, int tentativo, int y
 	x = 0;
 	gotoxy(x, y);
 	printf("Tentativo: %d", tentativo + 1);
-	printf("  Codice:");
+	printf("  Codice: ");
 	i = 0;
 	while(i < Leggere_difficolta(info_partita))
 	{
-		printf(" %d ", Leggere_elemento_utente(info_partita, i, tentativo));
+		printf("%d", Leggere_elemento_utente(info_partita, i, tentativo));
 		i = i + 1;
 	}
 	printf(" Elementi corretti: %d", Leggere_corretti(info_partita, tentativo));
@@ -128,10 +135,17 @@ void Acquisire_parola_utente(dati_gioco *info_partita, int riga, int tentativo)
     int i;
 	int numero;
 	char numero_input[DIM_MAX];
-	int x;
+	int x, y;
 	int posizione_errore = 25;
-	int esito_acquisizione = 0;
-	x = 0;
+	int esito_acquisizione_errata = 0;
+
+    x = 0;
+	y = 23;
+	gotoxy(x, y);
+	printf("\e[8m");
+    printf("\e[47m \e[30mPremere \e[4mCTRL^S\e[0m\e[47m\e[30m per salvare la partita.                                         ");
+    printf("\n Premere \e[4mCTRL^Q\e[0m\e[47m\e[30m e di seguito \e[4mINVIO\e[0m\e[47m\e[30m per chiudere il gioco.                       \e[0m");
+
 	gotoxy(x, riga);
 	printf(" Inserire il codice da verificare: \n");
 	riga = riga + 1;
@@ -141,11 +155,11 @@ void Acquisire_parola_utente(dati_gioco *info_partita, int riga, int tentativo)
 	    do {
 	    	Pulire_riga(riga);
 
-	    	if(esito_acquisizione == 1)
+	    	if(esito_acquisizione_errata == 1)
         	{
         	    gotoxy(posizione_errore, riga);
                 printf("\e[31m \e[1mErrore! Inserire numero tra 0 e 9!\e[37m\e[0m");
-                esito_acquisizione = 0;
+                esito_acquisizione_errata = 0;
         	}
 
 	    	x = 0;
@@ -157,19 +171,26 @@ void Acquisire_parola_utente(dati_gioco *info_partita, int riga, int tentativo)
 	        scanf("%s", numero_input);
 	        if(strlen(numero_input) == 1)
 	        {
-	            numero = (int)*numero_input;
-	            if(numero < 48 || numero > 57)  //48 è il codice ASCII dello 0 mentre 57 è il codice ASCII di 9
-	            {
-	                esito_acquisizione = 1;
-	            }
+	        	if((int)*numero_input == 17)
+	        	{
+	        		exit(1);
+	        	}
+	        	else
+	        	{
+	        		numero = (int)*numero_input;
+	        		if(numero < 48 || numero > 57)  //48 è il codice ASCII dello 0 mentre 57 è il codice ASCII di 9
+	        		{
+	        			esito_acquisizione_errata = 1;
+	        		}
+	        	}
 	        }
 	        else
 	        {
-	        	esito_acquisizione = 1;
+	        	esito_acquisizione_errata = 1;
 	        }
-		}while(numero < 48 || numero > 57);
+	    }while(numero < 48 || numero > 57);
 	    numero = numero - 48;
-		Scrivere_elemento_utente(numero, info_partita, i, tentativo);
+	    Scrivere_elemento_utente(numero, info_partita, i, tentativo);
 	    i = i + 1;
 	    riga = riga + 1;
 	    Cancellare_errore(posizione_errore, riga - 1);
@@ -227,11 +248,64 @@ void Stampare_esito(dati_gioco info_partita, int esito_parole_uguali, int tentat
 void Stampare_livelli_difficolta()
 {
 	int x, y;
-	x = 25;
+	x = 15;
 	y = 2;
 	gotoxy(x, y);
-    printf("\nInserire il numero corrispondente alla difficolta' desiderata: \n1.Facile \n");
+	printf("-Facile -> 4 numeri da indovinare, 9 tentativi");
+	y = 3;
+	gotoxy(x, y);
+	printf("-Intermedio -> 6 numeri da indovinare, 18 tentativi");
+	y = 4;
+	gotoxy(x, y);
+	printf("-Difficile -> 8 numeri da indovinare, 27 tentativi ");
+	y = 6;
+	gotoxy(x, y);
+    printf("\nInserire il numero corrispondente alla difficolta' desiderata: \n1.Facile\n");
     printf("2.Intermedio\n");
     printf("3.Difficile\n");
     return;
+}
+
+
+void Aiuto(int *numero_tentativi, int *doppioni, int *lunghezza)
+{
+	int x , y;
+	x = 0;
+    int esc;
+    system("cls");
+	FILE *regolamento_gioco;
+	char percorso[DIM_PERCORSO];
+	char *percorso_file;
+	percorso_file = getcwd(percorso, DIM_PERCORSO);
+	strcat(percorso_file, "\\..\\regolamento\\regolamento.txt");
+	regolamento_gioco = fopen(percorso_file, "r");
+	if(regolamento_gioco == NULL)
+	{
+	    printf("Errore! Impossibile leggere il regolamento di Mastermind!\n");
+	}
+	else{
+		FILE *puntatore_nel_file = regolamento_gioco;
+	    char carattere;
+	    while((carattere = fgetc(puntatore_nel_file)) != EOF)
+	    {
+	        putchar(carattere);
+	    }
+	}
+	y = 23;
+	gotoxy(x, y);
+	printf("\e[8m");
+    printf("\e[47m \e[30mPremere \e[4mCTRL^R\e[0m\e[47m\e[30m per tornare al menu' principale.                                ");
+    printf("\n Premere \e[4mCTRL^Q\e[0m\e[47m\e[30m per chiudere il gioco.                                          \e[0m");
+    y = 22;
+    gotoxy(x, y);
+    while((esc != 18) && (esc != 17))
+    {
+    	esc = (int)getch();
+    }
+    if(esc == 18)
+    {
+    	Pagina_principale(numero_tentativi, lunghezza, doppioni);
+    }
+	fclose(regolamento_gioco);
+	return;
 }

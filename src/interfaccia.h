@@ -10,7 +10,7 @@
 
 #define DIM_PERCORSO 300
 
-void Pagina_principale();
+void Pagina_principale(int *numero_tentativi, int *lunghezza, int *doppioni);
 void gotoxy(int x, int y);
 void Stampare_titolo();
 void Stampare_menu();

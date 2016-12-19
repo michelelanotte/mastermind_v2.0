@@ -4,14 +4,14 @@ void Pagina_principale(int *numero_tentativi, int *lunghezza, int *doppioni)
 {
 	char scelta[DIM_MAX];
 	int voce_menu;
-	int esito_scelta = 0;
+	int esito_scelta_errata = 0;
 	int x, y;
 	system("cls");
 	do {
 	    system("cls");
 		Stampare_titolo();
 		Stampare_menu();
-	    if(esito_scelta == 1)
+	    if(esito_scelta_errata == 1)
 	    {
 	    	x = 24;
 	    	y = 8;
@@ -32,15 +32,22 @@ void Pagina_principale(int *numero_tentativi, int *lunghezza, int *doppioni)
 	    scanf("%s", scelta);
 	    if(strlen(scelta) == 1)
 	    {
-	        voce_menu = (int)*scelta;  //livello_difficolta assumerà il valore ASCII del carattere inserito
-	        if((voce_menu < 49) || (voce_menu > 52))  //49 è il codice ASCII di 1, 51 è il codice ASCII di 3
-	        {
-	            esito_scelta = 1;
-	        }
+	    	if((int)*scelta == 17)
+	    	{
+	    		exit(1);
+	    	}
+	    	else
+	    	{
+	    		voce_menu = (int)*scelta;  //livello_difficolta assumerà il valore ASCII del carattere inserito
+	    		if((voce_menu < 49) || (voce_menu > 52))  //49 è il codice ASCII di 1, 51 è il codice ASCII di 3
+	    		{
+	    			esito_scelta_errata = 1;
+	    		}
+	    	}
 	    }
 	    else
 	    {
-	        esito_scelta = 1;
+	        esito_scelta_errata = 1;
 	    }
 	}while(((voce_menu < 49) || (voce_menu > 52)) && (voce_menu != 17));
 
@@ -125,7 +132,7 @@ void Stampare_risultati_precedenti(dati_gioco info_partita, int tentativo, int y
 		printf("%d", Leggere_elemento_utente(info_partita, i, tentativo));
 		i = i + 1;
 	}
-	printf(" Elementi corretti: %d", Leggere_corretti(info_partita, tentativo));
+	printf("  Elementi corretti: %d", Leggere_corretti(info_partita, tentativo));
 	printf("  Elementi presenti: %d", Leggere_presenti(info_partita, tentativo));
 	return;
 }
@@ -136,8 +143,9 @@ void Acquisire_parola_utente(dati_gioco *info_partita, int riga, int tentativo)
 	int numero;
 	char numero_input[DIM_MAX];
 	int x, y;
-	int posizione_errore = 25;
-	int esito_acquisizione_errata = 0;
+	int posizione_errore;
+	int posizione_stampa_errore = 20;  //colonna partendo dalla quale deve essere stampata la frase di errore
+	int esito_acquisizione_errata = 0;   //indica se c'è stato o meno un errore
 
     x = 0;
 	y = 23;
@@ -150,23 +158,23 @@ void Acquisire_parola_utente(dati_gioco *info_partita, int riga, int tentativo)
 	printf(" Inserire il codice da verificare: \n");
 	riga = riga + 1;
 	i = 0;
+	x = 0;
 	while(i < Leggere_difficolta(*info_partita))
 	{
+		Pulire_riga(riga + 1);
 	    do {
-	    	Pulire_riga(riga);
 
 	    	if(esito_acquisizione_errata == 1)
         	{
-        	    gotoxy(posizione_errore, riga);
-                printf("\e[31m \e[1mErrore! Inserire numero tra 0 e 9!\e[37m\e[0m");
+
+	    		Pulire_riga(riga + 1);  //pulizia della riga sulla quale verrà stampato il messaggio di errore
+        	    gotoxy(posizione_stampa_errore, riga + 1);
+                printf("\e[31m\e[1mErrore! Inserire numero tra 0 e 9!\e[37m\e[0m");
                 esito_acquisizione_errata = 0;
+                Cancellare_errore(posizione_errore, riga);  //il simbolo errato che è stato inserito in questo modo viene cancellato dal video
         	}
 
-	    	x = 0;
-	    	gotoxy(x, riga);
-	        printf(" %d. ", i + 1);
 	        fflush(stdin);
-	        x = 3;
 	        gotoxy(x, riga);
 	        scanf("%s", numero_input);
 	        if(strlen(numero_input) == 1)
@@ -181,19 +189,20 @@ void Acquisire_parola_utente(dati_gioco *info_partita, int riga, int tentativo)
 	        		if(numero < 48 || numero > 57)  //48 è il codice ASCII dello 0 mentre 57 è il codice ASCII di 9
 	        		{
 	        			esito_acquisizione_errata = 1;
+	        			posizione_errore = x;
 	        		}
 	        	}
 	        }
 	        else
 	        {
 	        	esito_acquisizione_errata = 1;
+	        	posizione_errore = x;
 	        }
 	    }while(numero < 48 || numero > 57);
 	    numero = numero - 48;
 	    Scrivere_elemento_utente(numero, info_partita, i, tentativo);
 	    i = i + 1;
-	    riga = riga + 1;
-	    Cancellare_errore(posizione_errore, riga - 1);
+	    x = x + 2;
 	}
 	return;
 }
@@ -305,6 +314,10 @@ void Aiuto(int *numero_tentativi, int *doppioni, int *lunghezza)
     if(esc == 18)
     {
     	Pagina_principale(numero_tentativi, lunghezza, doppioni);
+    }
+    if(esc == 17)
+    {
+    	exit(1);
     }
 	fclose(regolamento_gioco);
 	return;

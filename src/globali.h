@@ -17,7 +17,7 @@
 #define VALMAX 9
 #define VALMIN 0
 #define MAX_TENTATIVI 27
-#define DIM_MAX 10
+#define DIM_MAX 20
 
 
 //-----------------------definizione delle strutture-----------------------

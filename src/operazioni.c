@@ -10,6 +10,7 @@ void Nuova_partita(int *numero_tentativi, int *doppioni, int *lunghezza)
 	int contatore_tentativi;
 	int spazio_libero;
 	int tentativi_stampabili;
+	int n_righe_utilizzate = 10; //sono le righe già utilizzate(ad esempio per inserire il codice, la riga per indicare la presenza di un errore...
 	int esc;
 	int x, y;
 	int i = 0;
@@ -22,8 +23,8 @@ void Nuova_partita(int *numero_tentativi, int *doppioni, int *lunghezza)
 		Stampare_titolo();
 		Scrivere_tentativo_corrente(&info_partita, contatore_tentativi);
 
-		spazio_libero = N_RIGHE_DISPLAY - (8 + *lunghezza);
-		y = 2;
+		spazio_libero = N_RIGHE_DISPLAY - n_righe_utilizzate;   //spazio_libero indica quanto spazio è disponibile per stampare
+		y = 2;												    //         i risultati dei tentativi precedenti
 		if(contatore_tentativi < spazio_libero)
 		{
 			x = 0;
@@ -37,9 +38,9 @@ void Nuova_partita(int *numero_tentativi, int *doppioni, int *lunghezza)
 		}
 		else
 		{
-			tentativi_stampabili = contatore_tentativi - spazio_libero;
-			i = tentativi_stampabili;
-			while(i < contatore_tentativi)
+			tentativi_stampabili = contatore_tentativi - spazio_libero;  //tentativi_stampabili contiene il numero di tentativi stampabili
+			i = tentativi_stampabili;                                    // se tutti i tentativi precedenti non possono essere stampati
+			while(i < contatore_tentativi)                               // per motivi legati allo spazio disponibile
 			{
 				Stampare_risultati_precedenti(info_partita, i, y);
 				i = i + 1;
@@ -328,8 +329,8 @@ void Acquisizione_difficolta(int *lunghezza, int *numero_tentativi, int *doppion
 
 		Stampare_titolo();
 	    Stampare_livelli_difficolta();
-	    x = 0;
-	    y = 11;
+	    x = 63;
+	    y = 7;
 	    gotoxy(x, y);
 	    scanf("%s", difficolta);
 	    if(strlen(difficolta) == 1)

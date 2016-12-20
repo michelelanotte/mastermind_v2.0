@@ -1,10 +1,43 @@
 #include "lettura_scrittura.h"
 
-void Scrivere_info_partita(dati_gioco *info_partita, int numero_tentativi, int lunghezza)
+void Scrivere_max_tentativi(settings *impostazioni, int valore)
 {
-	info_partita->max_tentativi = numero_tentativi;
-	info_partita->lunghezza_codice = lunghezza;
+	impostazioni->numero_tentativi = valore;
 	return;
+}
+
+void Scrivere_lunghezza(settings *impostazioni, int valore)
+{
+	impostazioni->lunghezza = valore;
+	return;
+}
+
+void Scrivere_doppioni(settings *impostazioni, int valore)
+{
+	impostazioni->doppioni = valore;
+	return;
+}
+
+void Scrivere_info_partita(dati_gioco *info_partita, settings impostazioni)
+{
+	info_partita->max_tentativi = Leggere_max_tentativi(impostazioni);
+	info_partita->lunghezza_codice = Leggere_lunghezza(impostazioni);
+	return;
+}
+
+int Leggere_max_tentativi(settings impostazioni)
+{
+	return impostazioni.numero_tentativi;
+}
+
+int Leggere_lunghezza(settings impostazioni)
+{
+	return impostazioni.lunghezza;
+}
+
+int Leggere_doppioni(settings impostazioni)
+{
+	return impostazioni.doppioni;
 }
 
 void Scrivere_elemento_generato(int numero_generato, dati_gioco *info_partita, int posizione)

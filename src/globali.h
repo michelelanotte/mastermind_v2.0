@@ -37,9 +37,16 @@ typedef struct {
 }dati_gioco;
 
 
+
 typedef struct {
   int codice_gioco[LUNGHEZZA_MAX];
   int lunghezza_codice;
 }codice;
+
+typedef struct {
+	int numero_tentativi;
+	int lunghezza;
+	int doppioni;
+}settings;
 
 #endif /* GLOBALI_H_ */

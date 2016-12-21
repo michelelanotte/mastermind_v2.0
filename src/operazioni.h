@@ -7,7 +7,6 @@
 #include "interfaccia.h"
 #include "lettura_scrittura.h"
 
-#define N_RIGHE_DISPLAY 25
 #define DIM_NOME 15
 
 void Nuova_partita(settings *impostazioni);
@@ -18,6 +17,9 @@ int Controllo_parole_uguali(dati_gioco info_partita, int tentativo);
 void Conteggiare_valutazioni(int *conteggio_presenti, int *conteggio_corretti, char valutazione[LUNGHEZZA_MAX], int lunghezza);
 
 void Salvataggio_partita(int y, int x, dati_gioco *info_partita, settings *impostazioni);
+
+void Carica_partita(settings *impostazioni);
+void Riprendere_partita(settings *impostazioni, dati_gioco *info_partita, FILE *slot_salvato);
 
 void Impostazioni(settings *impostazioni);
 void Acquisizione_difficolta(settings *impostazioni);

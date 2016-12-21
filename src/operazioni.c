@@ -5,77 +5,12 @@
 
 void Nuova_partita(settings *impostazioni)
 {
-	dati_gioco info_partita;
+	int contatore_tentativi = 0;
 	int esito_parole_uguali;
-	int contatore_tentativi;
-	int spazio_libero;
-	int tentativi_stampabili;
-	int n_righe_utilizzate = 13; //sono le righe già utilizzate(ad esempio per inserire il codice, la riga per indicare la presenza di un errore...
-	int esc;
-	int x, y;
-	int i = 0;
-
-	Scrivere_info_partita(&info_partita, *impostazioni);
+	dati_gioco info_partita;
 	Generare_parola(&info_partita, *impostazioni);
-	contatore_tentativi = 0;
-	do {
-		system("cls");
-		Stampare_titolo();
-		Scrivere_tentativo_corrente(&info_partita, contatore_tentativi);
-
-		spazio_libero = N_RIGHE_DISPLAY - n_righe_utilizzate;   //spazio_libero indica quanto spazio è disponibile per stampare
-		y = 2;												    //         i risultati dei tentativi precedenti
-		if(contatore_tentativi < spazio_libero)
-		{
-			x = 0;
-			i =  0;
-			while( i < contatore_tentativi)
-			{
-				Stampare_risultati_precedenti(info_partita, i, y);
-				i = i + 1;
-				y = y + 1;
-			}
-		}
-		else
-		{
-			tentativi_stampabili = contatore_tentativi - spazio_libero;  //tentativi_stampabili contiene il numero di tentativi stampabili
-			i = tentativi_stampabili;                                    // se tutti i tentativi precedenti non possono essere stampati
-			while(i < contatore_tentativi)                               // per motivi legati allo spazio disponibile
-			{
-				Stampare_risultati_precedenti(info_partita, i, y);
-				i = i + 1;
-				y = y + 1;
-			}
-		}
-		gotoxy(x, y);
-		printf("\e[1m \e[4m\n----------- TENTATIVO NUMERO: %d -----------\e[0m", contatore_tentativi + 1);
-		Acquisire_parola_utente(&info_partita, y + 3, contatore_tentativi, spazio_libero, impostazioni);
-
-	    Valutazione_parola(&info_partita, contatore_tentativi);
-	    esito_parole_uguali = Controllo_parole_uguali(info_partita, contatore_tentativi);  //restituisce 1 se la parola(codice) è stata indovinata
-	    contatore_tentativi = contatore_tentativi + 1;
-	}while(esito_parole_uguali != 1 && (contatore_tentativi < Leggere_max_tentativi(*impostazioni)));
-	Stampare_esito(info_partita, esito_parole_uguali, contatore_tentativi);
-
-	x = 0;
-	y = 23;
-	gotoxy(x, y);
-    printf("\e[47m \e[30mPremere \e[4mCTRL^R\e[0m\e[47m\e[30m per tornare al menu' principale.                                ");
-    printf("\n Premere \e[4mCTRL^Q\e[0m\e[47m\e[30m per uscire dal gioco.                                           \e[0m");
-    y = 22;
-    gotoxy(x, y);
-    while((esc != 18) && (esc != 17))
-    {
-    	esc = (int)getch();
-    }
-    if(esc == 18)
-    {
-    	Pagina_principale(impostazioni);
-    }
-    else
-    {
-    	exit(1);
-    }
+	Interfaccia_acquisizione(impostazioni, &info_partita, &contatore_tentativi, &esito_parole_uguali);
+	Stampare_esito(info_partita, esito_parole_uguali, contatore_tentativi, impostazioni);
 	return;
 }
 
@@ -91,10 +26,8 @@ void Generare_parola(dati_gioco *info_partita, settings impostazioni)
 	        numero_generato = rand() % (VALMAX + VALMIN );  //tale istruzione genera un numero casuale che sia compreso tra VALMAX e VALMIN
 		}while((Leggere_doppioni(impostazioni) == 0) && (Simbolo_presente(numero_generato, *info_partita, i)));
 		Scrivere_elemento_generato(numero_generato, info_partita, i);
-		printf("%d ", numero_generato);
 	    i = i + 1;
 	}
-	system("pause");
 	return;
 }
 
@@ -207,7 +140,7 @@ void Conteggiare_valutazioni(int *conteggio_presenti, int *conteggio_corretti, c
 }
 
 
-//----------------------------Carica partita---------------------------------------------------------------------
+//----------------------------salvataggio partita---------------------------------------------------------------------
 
 void Salvataggio_partita(int y, int x, dati_gioco *info_partita, settings *impostazioni)
 {
@@ -274,7 +207,7 @@ void Salvataggio_partita(int y, int x, dati_gioco *info_partita, settings *impos
 		}
 		else
 		{
-			if(fwrite(&info_partita, sizeof(dati_gioco), 1, slot) != 0)
+			if(fwrite(info_partita, sizeof(dati_gioco), 1, slot) != 0)
 			{
 				Pulire_riga(y + 1);
 				gotoxy(0, y + 2);
@@ -285,6 +218,60 @@ void Salvataggio_partita(int y, int x, dati_gioco *info_partita, settings *impos
 	}
 	return;
 }
+
+//--------------------------Carica partita--------------------------------------------------------------------
+
+
+void Carica_partita(settings *impostazioni)
+{
+	FILE *slot_salvato;
+	int x, y;
+	dati_gioco info_partita;
+	char ritorno_menu;
+	x = 0;
+	y = 3;
+	system("cls");
+	Stampare_titolo();
+	if((slot_salvato = fopen("salvataggio.bin", "rb")) == NULL)
+	{
+		gotoxy(x, y);
+		printf("\e[31m \e[1mNon esiste alcuna partita salvata!\e[37m \e[0m");
+		y = 4;
+		gotoxy(x, y);
+		printf(" Premere \e[4mINVIO\e[0m per tornare al menu' principale...");
+		do {
+			ritorno_menu = getch();
+		}while((int)ritorno_menu != 13);
+		if((int)ritorno_menu == 13)
+		{
+			Pagina_principale(impostazioni);
+		}
+	}
+	else
+	{
+		fread(&info_partita, sizeof(dati_gioco), 1, slot_salvato);
+		Riprendere_partita(impostazioni, &info_partita, slot_salvato);
+	}
+	return;
+}
+
+void Riprendere_partita(settings *impostazioni, dati_gioco *info_partita, FILE *slot_salvato)
+{
+	int esito_parole_uguali;
+	int contatore_tentativi;
+	contatore_tentativi = Leggere_tentativo(*info_partita);
+	Interfaccia_acquisizione(impostazioni, info_partita, &contatore_tentativi, &esito_parole_uguali);
+
+	if((contatore_tentativi == info_partita->max_tentativi) || (esito_parole_uguali == 1))
+	{
+		fclose(slot_salvato);
+		remove("salvataggio.bin");
+	}
+
+	Stampare_esito(*info_partita, esito_parole_uguali, contatore_tentativi, impostazioni);
+	return;
+}
+
 
 
 //----------------------------Impostazioni del gioco-------------------------------------------------------------

@@ -30,5 +30,6 @@ int Leggere_elemento_utente(dati_gioco info_partita, int posizione, int tentativ
 int Leggere_corretti(dati_gioco info_partita, int tentativo);
 int Leggere_presenti(dati_gioco info_partita, int tentativo);
 int Leggere_elemento_temp(codice codice_temp, int posizione);
+int Leggere_tentativo(dati_gioco info_partita);
 
 #endif /* LETTURA_SCRITTURA_H_ */

@@ -22,7 +22,6 @@ void Pagina_principale(settings *impostazioni)
 		x = 0;
 		y = 24;
 		gotoxy(x, y);
-		printf("\e[8m");
 		printf("\e[47m \e[30m Premere \e[4mCTRL^Q\e[0m\e[47m\e[30m e di seguito \e[4mINVIO\e[0m\e[47m\e[30m per chiudere il gioco.                      \e[0m");
 
 		x = 0;
@@ -60,7 +59,7 @@ void Pagina_principale(settings *impostazioni)
 	{
 		if(voce_menu == 2)
 		{
-			//Carica_partita();
+			Carica_partita(impostazioni);
 		}
 		else
 		{
@@ -117,6 +116,55 @@ void Stampare_menu()
 	printf("4. Aiuto ");
 	return;
 }
+
+void Interfaccia_acquisizione(settings *impostazioni, dati_gioco *info_partita, int *contatore_tentativi, int *esito_parole_uguali)
+{
+		int spazio_libero;
+		int tentativi_stampabili;
+		int n_righe_utilizzate = 13; //sono le righe già utilizzate(ad esempio per inserire il codice, la riga per indicare la presenza di un errore...
+		int x, y;
+		int i;
+		Scrivere_info_partita(info_partita, *impostazioni);
+		do {
+			system("cls");
+			Stampare_titolo();
+			Scrivere_tentativo_corrente(info_partita, *contatore_tentativi);
+
+			spazio_libero = N_RIGHE_DISPLAY - n_righe_utilizzate;   //spazio_libero indica quanto spazio è disponibile per stampare
+			y = 2;												    //         i risultati dei tentativi precedenti
+			if(*contatore_tentativi < spazio_libero)
+			{
+				x = 0;
+				i =  0;
+				while( i < *contatore_tentativi)
+				{
+					Stampare_risultati_precedenti(*info_partita, i, y);
+					i = i + 1;
+					y = y + 1;
+				}
+			}
+			else
+			{
+				tentativi_stampabili = *contatore_tentativi - spazio_libero;  //tentativi_stampabili contiene il numero di tentativi stampabili
+				i = tentativi_stampabili;                                    // se tutti i tentativi precedenti non possono essere stampati
+				while(i < *contatore_tentativi)                               // per motivi legati allo spazio disponibile
+				{
+					Stampare_risultati_precedenti(*info_partita, i, y);
+					i = i + 1;
+					y = y + 1;
+				}
+			}
+			gotoxy(x, y);
+			printf("\e[1m \e[4m\n----------- TENTATIVO NUMERO: %d -----------\e[0m", *contatore_tentativi + 1);
+			Acquisire_parola_utente(info_partita, y + 3, *contatore_tentativi, spazio_libero, impostazioni);
+
+		    Valutazione_parola(info_partita, *contatore_tentativi);
+		    *esito_parole_uguali = Controllo_parole_uguali(*info_partita, *contatore_tentativi);  //restituisce 1 se la parola(codice) è stata indovinata
+		    *contatore_tentativi = *contatore_tentativi + 1;
+		}while(*esito_parole_uguali != 1 && (*contatore_tentativi < Leggere_max_tentativi(*impostazioni)));
+		return;
+}
+
 
 void Stampare_risultati_precedenti(dati_gioco info_partita, int tentativo, int y)
 {
@@ -291,11 +339,13 @@ void Cancellare_errore(int x, int y)
 	return;
 }
 
-void Stampare_esito(dati_gioco info_partita, int esito_parole_uguali, int tentativo_ultimo)
+void Stampare_esito(dati_gioco info_partita, int esito_parole_uguali, int tentativo_ultimo, settings *impostazioni)
 {
+	int i;
+	int esc;
+	int x, y;
 	system("cls");
 	Stampare_titolo();
-	int i;
 	if(esito_parole_uguali)
 	{
 		printf("\e[1m\n\nSEI RIUSCITO A TROVARE LA COMBINAZIONE GIUSTA IN %d TENTATIVI! COMPLIMENTI!\n\e[0m", tentativo_ultimo);
@@ -312,6 +362,26 @@ void Stampare_esito(dati_gioco info_partita, int esito_parole_uguali, int tentat
 		}
 		printf("\e[1m\n\nNON SEI STATO FORTUNATO! NON SEI RIUSCITO A TROVARE LA COMBINAZIONE GIUSTA!\n\e[0m");
 	}
+
+	x = 0;
+	y = 23;
+	gotoxy(x, y);
+    printf("\e[47m \e[30mPremere \e[4mCTRL^R\e[0m\e[47m\e[30m per tornare al menu' principale.                                ");
+    printf("\n Premere \e[4mCTRL^Q\e[0m\e[47m\e[30m per uscire dal gioco.                                           \e[0m");
+    y = 22;
+    gotoxy(x, y);
+    while((esc != 18) && (esc != 17))
+    {
+    	esc = (int)getch();
+    }
+    if(esc == 18)
+    {
+    	Pagina_principale(impostazioni);
+    }
+    else
+    {
+    	exit(1);
+    }
 	return;
 }
 

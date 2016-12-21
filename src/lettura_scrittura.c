@@ -113,3 +113,8 @@ int Leggere_elemento_temp(codice codice_temp, int posizione)
 	return codice_temp.codice_gioco[posizione];
 }
 
+int Leggere_tentativo(dati_gioco info_partita)
+{
+	return info_partita.tentativo;
+}
+

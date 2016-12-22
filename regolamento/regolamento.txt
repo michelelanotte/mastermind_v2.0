@@ -1,0 +1,21 @@
+ ------------------( M | A | S | T | E | R | M | I | N | D )------------------
+ 
+ ----------------------------------------------------------------------------- 
+|   Mastermind e' un gioco in cui l'utente non deve far altro che provare     |
+|  ad indovinare una parola(o codice) formata da numeri che vanno da 0 a 9.   |
+|     Il gioco, non fara' altro che dire all'utente quanti sono i numeri      |
+|   del codice inserito in posizione corretta(rispetto al codice generato),   |
+|  e quanti in posizione errata(il gioco non dice quanti sono i numeri non    |
+|                   presenti nel codice da indovinare!).                      |
+|    L'utente puo' scegliere la difficolta' della parola da indovinare        |
+|  (in base alla difficolta' varia la lunghezza del codice da indovinare      |
+|             e il numero di tentativi). Per default sono 4 i numeri da       |
+|      indovinare mentre 9 sono i tentativi a disposizione del giocatore.     |
+|         Inoltre e' anche possibile decidere se ammettere o meno             |
+|        la ripetizione di numeri all'interno del codice da indovinare.       |
+|       Per inserire il codice occorre scrivere, da tastiera, un numero       |
+|       per volta, una volta inserito il primo numero, premere INVIO, di      |
+|               seguito inserire il secondo numero e cosi' via.               |
+|                                                                             |
+|                   Cosa aspetti? Prova a giocarci subito!                    |
+ ----------------------------------------------------------------------------- 
